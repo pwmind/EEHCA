@@ -1,0 +1,31 @@
+Clear
+
+new circuit.IEEE13Nodeckt 
+~ basekv=115 pu=1.0001 phases=3 bus1=SourceBus  
+~ Angle=30                                                         ! advance angle 30 deg so result agree with published angle
+~ MVAsc3=20000 MVASC1=21000    ! stiffen the source to approximate inf source
+
+Redirect Capacitors.dss
+Redirect LineCodes.dss
+Redirect Lines.dss
+Redirect Transformers.dss
+!Redirect LoadShapes.dss
+!Redirect Loads.dss
+
+!New Loadshape.irradiance npts=35040 interval=0.25 mult = (file="profiles\irradiance.csv") UseActual=true
+
+new monitor.m1 element=Line.650632 mode=0 ! Monitor V and I for each phase
+new monitor.m2 element=Line.650632 mode=1 ! Monitor P and Q 
+new energymeter.m3 Line.650632 
+
+Set Voltagebases=[115, 4.16, .48]
+calcv
+Solve
+
+BusCoords IEEE13Node_BusXY.csv
+
+Calcvoltagebases
+
+set maxcontroliter=50
+
+Solve mode=yearly stepsize=15m number=35040
